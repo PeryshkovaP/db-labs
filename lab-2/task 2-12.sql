@@ -1,2 +1,3 @@
 /* Найдите дату последней регистрации члена клуба.*/
-select max(starttime) as 'Last registration' from bookings;
+USE cd;
+SELECT max(joindate) AS 'Last registration' FROM members;
