@@ -1,2 +1,3 @@
 /* Выберите 10 фамилий членов клуба упорядочите их по алфавиту без повторов.*/
-select surname from members where memid > 1 and memid < 12 order by surname;
+USE cd;
+SELECT DISTINCT surname FROM members WHERE surname != 'Guest' ORDER BY surname LIMIT 10;
