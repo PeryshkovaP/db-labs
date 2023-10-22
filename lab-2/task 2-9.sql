@@ -1,2 +1,4 @@
 /* Выбрать всех членов клуба, зарегистрированных с сентября 2012 года.*/
-select * from bookings where starttime like '%2012-09%';
+USE cd;
+SELECT memid, surname, firstname FROM members 
+WHERE EXTRACT(MONTH FROM joindate) = 9 AND EXTRACT(YEAR FROM joindate) = 2012;
