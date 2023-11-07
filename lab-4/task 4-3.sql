@@ -2,3 +2,4 @@
 USE cd;
 INSERT INTO facilities (facid, facility, membercost, guestcost, initialoutlay, monthlymaintenance)
 SELECT 12, facility, membercost, guestcost, initialoutlay, monthlymaintenance FROM facilities WHERE facility LIKE 'Spa';
+
