@@ -3,3 +3,4 @@
 USE cd;
 INSERT INTO facilities (facid, facility, membercost, guestcost, initialoutlay, monthlymaintenance)
 VALUES (9, 'Spa', 20, 30, 100000, 800);
+
