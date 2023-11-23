@@ -3,15 +3,19 @@
 Не забудьте учесть возможность того, что в день будет нулевой доход. 
 Примечание: используйте DATE_ADD для генерации серии дат.*/
 USE cd;
-SELECT 	DATE(b.starttime) AS date,
-		SUM(IF(memid = 0, f.guestcost * b.slots, f.membercost * b.slots)) AS revenue,
-		(SELECT AVG(IF(memid = 0, f.guestcost * b2.slots, f.membercost * b2.slots))
-		FROM bookings b2
-		JOIN facilities f ON b2.facid = f.facid
-		WHERE DATE(b2.starttime) BETWEEN DATE_SUB(b.starttime, INTERVAL 15 DAY) AND DATE_SUB(b.starttime, INTERVAL 1 DAY)
-		) AS moving_average FROM bookings b
-JOIN facilities f ON b.facid = f.facid
-WHERE DATE(b.starttime) BETWEEN '2012-08-01' AND '2012-08-31'
-GROUP BY DATE(b.starttime), moving_average
-HAVING DATE_ADD(date, INTERVAL 15 DAY) <= '2012-08-31'
-ORDER BY DATE(b.starttime);
+SET @from_date = '2012-08-01', @to_date = '2012-08-31';
+WITH RECURSIVE dates(Dat) AS
+(SELECT @from_date as Dat
+UNION ALL
+SELECT DATE_ADD(Dat, INTERVAL 1 day) FROM dates WHERE Dat < @to_date)
+
+SELECT Dat, TotalIncome / 15 as MovingAverageIncome
+FROM (SELECT 
+		Dat, 
+        SUM(f.membercost * b.slots + f.guestcost * b.slots) as TotalIncome
+FROM dates
+LEFT JOIN bookings b on DATE(b.starttime) = dates.Dat
+LEFT JOIN facilities f on b.facid = f.facid
+WHERE dates.Dat >= DATE_SUB(@from_date, INTERVAL 14 DAY) AND dates.Dat <= @to_date
+GROUP BY Dat) as Income
+ORDER BY Dat; 
