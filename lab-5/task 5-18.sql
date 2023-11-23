@@ -16,6 +16,6 @@ FROM (SELECT
 FROM dates
 LEFT JOIN bookings b on DATE(b.starttime) = dates.Dat
 LEFT JOIN facilities f on b.facid = f.facid
-WHERE dates.Dat >= DATE_SUB(@from_date, INTERVAL 14 DAY) AND dates.Dat <= @to_date
+WHERE dates.Dat >= DATE_SUB(@to_date, INTERVAL 14 DAY) AND dates.Dat <= @to_date
 GROUP BY Dat) as Income
 ORDER BY Dat; 
