@@ -3,19 +3,24 @@
 Не забудьте учесть возможность того, что в день будет нулевой доход. 
 Примечание: используйте DATE_ADD для генерации серии дат.*/
 USE cd;
-SET @from_date = '2012-08-01', @to_date = '2012-08-31';
-WITH RECURSIVE dates(Dat) AS
-(SELECT @from_date as Dat
-UNION ALL
-SELECT DATE_ADD(Dat, INTERVAL 1 day) FROM dates WHERE Dat < @to_date)
-
-SELECT Dat, TotalIncome / 15 as MovingAverageIncome
-FROM (SELECT 
-		Dat, 
-        SUM(f.membercost * b.slots + f.guestcost * b.slots) as TotalIncome
-FROM dates
-LEFT JOIN bookings b on DATE(b.starttime) = dates.Dat
-LEFT JOIN facilities f on b.facid = f.facid
-WHERE dates.Dat >= DATE_SUB(@from_date, INTERVAL 14 DAY) AND dates.Dat <= @to_date
-GROUP BY Dat) as Income
-ORDER BY Dat; 
+WITH RECURSIVE DateRange AS (
+    SELECT '2012-08-01' AS Date
+    UNION ALL
+    SELECT DATE_ADD(Date, INTERVAL 1 DAY) 
+    FROM DateRange 
+    WHERE Date < '2012-08-31'
+),
+TotalRevenue AS(
+SELECT DateRange.Date, 
+	Coalesce(SUM(IF(b.memid = 0, f.guestcost * b.slots, f.membercost * b.slots)), 0) as total_revenue
+    FROM DateRange
+    LEFT JOIN bookings b ON DATE(b.starttime) = Date
+    LEFT JOIN facilities f ON b.facid = f.facid
+    GROUP BY Date
+)
+SELECT 
+	DISTINCT TRD.Date, 
+	ROUND((SELECT SUM(total_revenue) FROM TotalRevenue TR WHERE TR.Date >= DATE_SUB(TRD.Date, INTERVAL 15 DAY) AND TR.Date <= TRD.Date) / 15, 2) AS moving_average_revenue
+FROM TotalRevenue TRD
+LEFT JOIN bookings b ON DATE(b.starttime) = TRD.Date
+ORDER BY TRD.Date;
