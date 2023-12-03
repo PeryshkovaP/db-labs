@@ -11,6 +11,7 @@ ALTER TABLE bookings ADD COLUMN payed BOOLEAN NOT NULL DEFAULT FALSE;
 /*Создайте триггеры, которые: 1) Запрещают удаление записей, если они уже оплачены;*/
 DELIMITER $$
 
+DROP TRIGGER IF EXISTS prevent_payment_deletion;
 CREATE TRIGGER prevent_payment_deletion 
 BEFORE DELETE ON bookings 
 FOR EACH ROW 
@@ -25,6 +26,7 @@ DELIMITER ;
 и суммой оплаты, для вычисления которой используется функция созданная в Task-7-1.*/
 DELIMITER $$
 
+DROP TRIGGER IF EXISTS record_payment;
 CREATE TRIGGER record_payment AFTER UPDATE ON bookings 
 FOR EACH ROW 
 BEGIN
@@ -37,6 +39,7 @@ DELIMITER ;
 /*3) При отмене оплаты - удаляет соответствующую запись в таблице payments.*/
 DELIMITER $$
 
+DROP TRIGGER IF EXISTS delete_payment;
 CREATE TRIGGER delete_payment 
 AFTER UPDATE ON bookings
 FOR EACH ROW
